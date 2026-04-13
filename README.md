@@ -46,8 +46,10 @@ Access the App:
 Open your browser and navigate to http://localhost:3000.
 
 🎮 How to Use
-Onboarding: Enter your name to initialize your profile.
+1.Onboarding: Enter your name to initialize your profile.
 
-Track Habits: Click on the checkmark next to a habit to complete it for the day.
+2.Track Habits: Click on the checkmark next to a habit to complete it for the day.
 
-Add New Habits: Use the interface to create custom habits with different priority levels and categories.
+3.Add New Habits: Use the interface to create custom habits with different priority levels and categories.
+
+4.Monitor Growth: Watch your XP bar fill up and check your category stats in the sidebar.
