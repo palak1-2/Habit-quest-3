@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HabitQuest — Level Up Your Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d14;--surface:#16161f;--surface2:#1e1e2a;--surface3:#252535;
+  --accent:#7c5cfc;--accent2:#c084fc;--gold:#f59e0b;--green:#22d3a4;
+  --red:#f87171;--blue:#60a5fa;--muted:#6b7280;
+  --text:#f1f0ff;--text2:#a8a4c5;--border:rgba(255,255,255,0.07);
+  --radius:14px;--radius-sm:9px;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow:hidden}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+
+/* ─── LAYOUT ─── */
+.shell{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:230px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.main{flex:1;overflow-y:auto;padding:2rem 2.5rem}
+
+/* ─── SIDEBAR ─── */
+.logo{padding:1.5rem 1.25rem 1.25rem;border-bottom:1px solid var(--border)}
+.logo-title{font-size:1.2rem;font-weight:800;background:linear-gradient(135deg,#7c5cfc,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
+.logo-sub{font-size:.7rem;color:var(--muted);margin-top:3px}
+.nav-section{padding:1.2rem .9rem .4rem;font-size:.62rem;font-weight:700;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:.55rem 1rem;margin:1px .5rem;border-radius:var(--radius-sm);cursor:pointer;font-size:.84rem;color:var(--text2);transition:all .15s;border:none;background:none;width:calc(100% - 1rem);text-align:left;position:relative}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(124,92,252,.2);color:#c084fc;font-weight:500}
+.nav-icon{font-size:.95rem;width:18px;text-align:center}
+.user-card{margin:.5rem .75rem 1.25rem;padding:.85rem;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.user-name{font-size:.88rem;font-weight:600}
+.user-meta{font-size:.7rem;color:var(--muted);margin-top:2px}
+.xp-bar{height:4px;background:var(--surface3);border-radius:2px;margin-top:.6rem;overflow:hidden}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .5s}
+
+/* ─── PAGES ─── */
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2rem}
+.page-title{font-size:1.85rem;font-weight:800;line-height:1.1}
+.page-sub{font-size:.88rem;color:var(--muted);margin-top:.2rem}
+
+/* ─── CARDS ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.35rem}
+.card-sm{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem}
+.stat-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1}
+.stat-label{font-size:.68rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.07em}
+
+/* ─── BADGES ─── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:100px;font-size:.68rem;font-weight:600;letter-spacing:.02em}
+.badge-purple{background:rgba(124,92,252,.2);color:#c084fc}
+.badge-green{background:rgba(34,211,164,.15);color:var(--green)}
+.badge-red{background:rgba(248,113,113,.18);color:var(--red)}
+.badge-gold{background:rgba(245,158,11,.18);color:var(--gold)}
+.badge-blue{background:rgba(96,165,250,.18);color:var(--blue)}
+.badge-muted{background:var(--surface2);color:var(--muted)}
+
+/* ─── HABIT ROWS ─── */
+.habit-row{display:flex;align-items:center;gap:1rem;padding:.95rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.65rem;transition:border-color .15s,background .15s}
+.habit-row:hover{border-color:rgba(124,92,252,.3)}
+.habit-row.done{background:rgba(34,211,164,.04);border-color:rgba(34,211,164,.2)}
+.habit-check{width:24px;height:24px;border-radius:7px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:.9rem;color:#fff;user-select:none}
+.habit-check:hover{border-color:var(--green)}
+.habit-check.checked{background:var(--green);border-color:var(--green)}
+.habit-info{flex:1;min-width:0}
+.habit-name{font-weight:500;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.habit-meta{font-size:.73rem;color:var(--muted);margin-top:2px}
+.streak-pill{display:flex;align-items:center;gap:3px;font-size:.78rem;font-weight:700;color:var(--gold);padding:3px 9px;background:rgba(245,158,11,.12);border-radius:100px;flex-shrink:0}
+.prio-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:1px}
+.prio-1{background:var(--muted)}.prio-2{background:var(--blue)}.prio-3{background:var(--red)}
+.habit-actions{display:flex;gap:5px;flex-shrink:0}
+.btn-icon{width:30px;height:30px;border:none;border-radius:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;transition:all .15s}
+.btn-del{background:rgba(248,113,113,.1);color:var(--red)}.btn-del:hover{background:rgba(248,113,113,.28)}
+.btn-arch{background:rgba(107,114,128,.1);color:var(--muted)}.btn-arch:hover{background:rgba(107,114,128,.28)}
+
+/* ─── BUTTONS ─── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:.55rem 1.15rem;border:none;border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.875rem;font-weight:500;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:#6a4bef;transform:translateY(-1px)}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}.btn-secondary:hover{background:var(--surface3)}
+.btn-success{background:linear-gradient(135deg,var(--green),#0d9488);color:#0d1a14}.btn-success:hover{opacity:.9}
+.btn-sm{padding:.35rem .8rem;font-size:.78rem}
+
+/* ─── FORM ─── */
+.form-group{margin-bottom:1.1rem}
+.form-label{display:block;font-size:.75rem;font-weight:500;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.07em}
+.form-input{width:100%;padding:.62rem .95rem;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--accent)}
+.form-input option{background:var(--surface)}
+
+/* ─── CALENDAR ─── */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal-day-hdr{text-align:center;font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;padding-bottom:4px}
+.cal-day{aspect-ratio:1;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:.78rem;transition:all .15s;border:1px solid transparent;user-select:none}
+.cal-day:not(.empty):hover{border-color:rgba(124,92,252,.5)}
+.cal-day.today{border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(124,92,252,.2)}
+.cal-day.full{background:rgba(34,211,164,.22);color:var(--green)}
+.cal-day.partial{background:rgba(245,158,11,.18);color:var(--gold)}
+.cal-day.none-done{background:rgba(248,113,113,.12);color:var(--red)}
+.cal-day.future{opacity:.3;cursor:default}
+.cal-day-num{font-weight:700}
+.cal-dot{width:5px;height:5px;border-radius:50%;margin-top:2px}
+.dot-full{background:var(--green)}.dot-partial{background:var(--gold)}.dot-none{background:var(--red)}
+
+/* ─── ACHIEVEMENTS ─── */
+.ach-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:1rem;margin-top:1.25rem}
+.ach-card{padding:1.1rem;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface);transition:transform .2s,border-color .2s}
+.ach-card.unlocked{border-color:rgba(245,158,11,.45);background:linear-gradient(135deg,rgba(245,158,11,.06),rgba(124,92,252,.06))}
+.ach-card.unlocked:hover{transform:translateY(-3px)}
+.ach-icon{font-size:1.8rem;margin-bottom:.5rem;display:block}
+.ach-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.9rem}
+.ach-desc{font-size:.72rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.ach-pts{font-size:.68rem;margin-top:.5rem;font-weight:600}
+
+/* ─── NOTIF ─── */
+.notif-item{display:flex;align-items:flex-start;gap:.75rem;padding:.8rem 1rem;border-radius:var(--radius-sm);background:var(--surface);border-left:3px solid var(--accent);margin-bottom:.65rem;font-size:.875rem;animation:slIn .25s}
+@keyframes slIn{from{transform:translateX(-8px);opacity:0}to{transform:none;opacity:1}}
+
+/* ─── WEEKLY BARS ─── */
+.week-bars{display:flex;gap:6px;align-items:flex-end;height:110px}
+.week-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.week-bar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .4s;background:linear-gradient(to top,var(--accent),var(--accent2))}
+.week-bar.zero-bar{background:var(--surface3)}
+.week-label{font-size:.62rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.week-count{font-size:.65rem;color:var(--text2)}
+
+/* ─── CAT BARS ─── */
+.cat-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.cat-name{font-size:.78rem;width:88px;flex-shrink:0;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cat-bar-bg{flex:1;height:7px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+.cat-pct{font-size:.72rem;color:var(--muted);width:34px;text-align:right;flex-shrink:0}
+
+/* ─── MODAL ─── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid rgba(124,92,252,.3);border-radius:var(--radius);padding:1.9rem;width:430px;max-width:calc(100vw - 2rem);animation:modalIn .25s}
+@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:none;opacity:1}}
+.modal-title{font-size:1.15rem;font-weight:800;margin-bottom:1.4rem}
+
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:1.5rem;right:1.5rem;z-index:2000;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+.toast{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:var(--radius-sm);padding:.7rem 1rem;font-size:.84rem;max-width:300px;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:tIn .28s;pointer-events:none}
+@keyframes tIn{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+
+/* ─── MISC ─── */
+.divider{border:none;border-top:1px solid var(--border);margin:1.25rem 0}
+.empty-state{color:var(--muted);font-size:.88rem;padding:2rem;text-align:center;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border)}
+.section-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:1rem}
+.progress-outer{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden;margin-top:.5rem}
+.progress-inner{height:100%;border-radius:3px;transition:width .5s}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-title">⚡ HabitQuest</div>
+    <div class="logo-sub">Level up your life</div>
+  </div>
+
+  <div class="nav-section">Tracking</div>
+  <button class="nav-item active" onclick="nav('today')" data-page="today"><span class="nav-icon">🏠</span>Today</button>
+  <button class="nav-item" onclick="nav('habits')" data-page="habits"><span class="nav-icon">📋</span>All Habits</button>
+  <button class="nav-item" onclick="nav('calendar')" data-page="calendar"><span class="nav-icon">📅</span>Calendar</button>
+
+  <div class="nav-section">Progress</div>
+  <button class="nav-item" onclick="nav('dashboard')" data-page="dashboard"><span class="nav-icon">📊</span>Dashboard</button>
+  <button class="nav-item" onclick="nav('achievements')" data-page="achievements"><span class="nav-icon">🏆</span>Achievements</button>
+  <button class="nav-item" onclick="nav('categories')" data-page="categories"><span class="nav-icon">🏷</span>Categories</button>
+
+  <div class="nav-section">More</div>
+  <button class="nav-item" onclick="nav('notifications')" data-page="notifications">
+    <span class="nav-icon">🔔</span>Notifications
+    <span id="notif-badge" style="margin-left:auto;background:var(--red);color:#fff;border-radius:100px;font-size:.6rem;padding:1px 6px;display:none;font-weight:700"></span>
+  </button>
+  <button class="nav-item" onclick="nav('archived')" data-page="archived"><span class="nav-icon">📦</span>Archived</button>
+
+  <div style="flex:1"></div>
+
+  <div class="user-card" id="user-card">
+    <div class="user-name" id="sb-name">—</div>
+    <div class="user-meta" id="sb-meta">Lv.1 · 0 pts</div>
+    <div class="xp-bar"><div class="xp-fill" id="xp-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<!-- ══════════════ MAIN ══════════════ -->
+<main class="main">
+
+<!-- TODAY -->
+<div class="page active" id="page-today">
+  <div class="page-header">
+    <div>
+      <div class="page-title" id="today-greeting">Good morning ⚡</div>
+      <div class="page-sub" id="today-date"></div>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap">
+      <button class="btn btn-success btn-sm" onclick="completeAll()">✅ Complete All</button>
+      <button class="btn btn-primary btn-sm" onclick="openModal()">＋ Add Habit</button>
+    </div>
+  </div>
+  <div class="grid-4" id="today-stats"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.9rem">
+    <div class="section-title" style="margin:0">Today's Habits</div>
+    <div style="font-size:.8rem;color:var(--muted)" id="today-prog"></div>
+  </div>
+  <div id="today-list"></div>
+</div>
+
+<!-- ALL HABITS -->
+<div class="page" id="page-habits">
+  <div class="page-header">
+    <div><div class="page-title">All Habits</div><div class="page-sub">Sorted by streak — manage your full list</div></div>
+    <button class="btn btn-primary" onclick="openModal()">＋ Add Habit</button>
+  </div>
+  <div id="habits-list"></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="page-header">
+    <div><div class="page-title">Calendar</div><div class="page-sub">Track completion history month by month</div></div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
+    <button class="btn btn-secondary btn-sm" onclick="calNav(-1)">← Prev</button>
+    <div id="cal-label" style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;min-width:175px;text-align:center"></div>
+    <button class="btn btn-secondary btn-sm" onclick="calNav(1)">Next →</button>
+  </div>
+  <div style="display:flex;gap:1.25rem;align-items:center;flex-wrap:wrap;font-size:.78rem;margin-bottom:1.25rem">
+    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(34,211,164,.3);border-radius:2px;margin-right:5px;vertical-align:middle"></span>All done</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(245,158,11,.3);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Partial</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:rgba(248,113,113,.2);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Missed</span>
+    <span style="color:var(--muted)"><span style="display:inline-block;width:10px;height:10px;background:var(--surface3);border-radius:2px;margin-right:5px;vertical-align:middle"></span>Future</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div id="cal-detail" style="margin-top:1.5rem;display:none">
+    <hr class="divider">
+    <div class="section-title" id="cal-detail-title"></div>
+    <div id="cal-detail-list"></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="page-dashboard">
+  <div class="page-title" style="margin-bottom:.3rem">Dashboard</div>
+  <div class="page-sub" style="margin-bottom:2rem">Your performance at a glance</div>
+  <div class="grid-4" id="dash-stats"></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="section-title">7-Day Activity</div>
+      <div class="week-bars" id="week-bars"></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Category Breakdown</div>
+      <div id="cat-bars"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="section-title">Smart Recommendations</div>
+    <div id="recs"></div>
+  </div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="page" id="page-achievements">
+  <div class="page-title" style="margin-bottom:.3rem">Achievements</div>
+  <div class="page-sub" style="margin-bottom:1.5rem">Earn badges by hitting milestones</div>
+  <div id="ach-prog"></div>
+  <div class="ach-grid" id="ach-grid"></div>
+</div>
+
+<!-- CATEGORIES -->
+<div class="page" id="page-categories">
+  <div class="page-title" style="margin-bottom:.3rem">Categories</div>
+  <div class="page-sub" style="margin-bottom:1.5rem">Browse habits by category</div>
+  <div id="cat-filter" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.5rem"></div>
+  <div id="cat-habit-list"></div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div class="page" id="page-notifications">
+  <div class="page-header">
+    <div><div class="page-title">Notifications</div><div class="page-sub">Activity and milestone alerts</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="clearNotifs()">Clear All</button>
+  </div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- ARCHIVED -->
+<div class="page" id="page-archived">
+  <div class="page-header">
+    <div><div class="page-title">Archived Habits</div><div class="page-sub">Paused or completed habits</div></div>
+    <button class="btn btn-secondary btn-sm" onclick="recoverLast()">♻ Recover Last</button>
+  </div>
+  <div id="archived-list"></div>
+</div>
+
+</main>
+</div>
+
+<!-- ══════════════ ADD HABIT MODAL ══════════════ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">Add New Habit</div>
+    <div class="form-group">
+      <label class="form-label">Habit Name *</label>
+      <input class="form-input" id="inp-name" placeholder="e.g. Morning Workout" oninput="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-input" id="inp-desc" placeholder="e.g. 30 minutes of exercise">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Category</label>
+      <input class="form-input" id="inp-cat" list="cat-dl" placeholder="Health / Learning / Wellness ...">
+      <datalist id="cat-dl">
+        <option value="Health"><option value="Learning"><option value="Wellness">
+        <option value="Productivity"><option value="Finance"><option value="Social">
+      </datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Priority</label>
+      <select class="form-input" id="inp-prio">
+        <option value="1">⬇ Low (1)</option>
+        <option value="2" selected>➡ Medium (2)</option>
+        <option value="3">⬆ High (3)</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="submitHabit()">Add Habit</button>
+    </div>
+  </div>
+</div>
+
+<!-- WELCOME OVERLAY (shown only on first visit) -->
+<div id="welcome-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid rgba(124,92,252,.35);border-radius:var(--radius);padding:2.5rem 2rem;width:400px;max-width:calc(100vw - 2rem);animation:modalIn .3s;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:1rem">⚡</div>
+    <div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#7c5cfc,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.4rem">HabitQuest</div>
+    <div style="color:var(--muted);font-size:.9rem;margin-bottom:2rem">Level up your life — one habit at a time</div>
+    <div style="text-align:left;margin-bottom:1.5rem">
+      <label style="display:block;font-size:.75rem;font-weight:500;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em">Your name</label>
+      <input id="welcome-name-input" class="form-input" placeholder="e.g. Alex" maxlength="32" autocomplete="off">
+    </div>
+    <button id="welcome-start-btn" class="btn btn-primary" style="width:100%;justify-content:center;padding:.7rem">Begin My Quest →</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ════════════════ STATE ════════════════
+let habits = [], nextId = 1;
+let user = { name: '', points: 0, level: 1, totalXP: 0, earnedRewards: [], categoryStats: {} };
+let notifications = [], deletedStack = [], undoStack = [];
+let calYear = new Date().getFullYear(), calMonth = new Date().getMonth();
+
+// Activity log — every completion event stored with date + timestamp
+let activityLog = [];
+
+// ════════════════ SERVER STORAGE (Node.js + real JSON files) ════════════════
+// All data is saved to and loaded from your hard disk via the local Node server.
+//   • habits.json        → habits list + user profile
+//   • activity_log.json  → every completion/undo event with date + timestamp
+
+async function saveHabits() {
+  const data = {
+    meta: { savedAt: new Date().toISOString(), version: 1 },
+    user: { ...user },
+    nextId,
+    habits: habits.map(h => ({ ...h, completionDates: [...h.completionDates] }))
+  };
+  try {
+    await fetch('/api/habits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) { console.error('saveHabits failed', e); }
+}
+
+async function saveLog() {
+  const data = {
+    meta: { savedAt: new Date().toISOString(), version: 1 },
+    log: [...activityLog]
+  };
+  try {
+    await fetch('/api/log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) { console.error('saveLog failed', e); }
+}
+
+async function saveAll() { await saveHabits(); await saveLog(); }
+
+async function loadFromServer() {
+  let hasData = false;
+
+  // ── load habits + user ──
+  try {
+    const res  = await fetch('/api/habits');
+    const data = await res.json();
+    if (data.habits && Array.isArray(data.habits)) {
+      habits = data.habits;
+      nextId = data.nextId || (habits.length ? Math.max(...habits.map(h => h.id)) + 1 : 1);
+      if (data.user && data.user.name) Object.assign(user, data.user);
+      if (habits.length > 0) hasData = true;
+    }
+  } catch(e) { console.error('loadHabits failed', e); }
+
+  // ── load activity log ──
+  try {
+    const res  = await fetch('/api/log');
+    const data = await res.json();
+    if (data.log && Array.isArray(data.log)) activityLog = data.log;
+  } catch(e) { console.error('loadLog failed', e); }
+
+  return hasData;
+}
+
+function logActivity(habitId, habitName, category, action, pointsChange, streakAtTime) {
+  activityLog.unshift({
+    date: today(),
+    timestamp: new Date().toISOString(),
+    habitId, habitName, category,
+    action,        // "completed" | "undone"
+    pointsChange,
+    streakAtTime
+  });
+  saveLog();
+}
+
+const REWARDS = [
+  {title:'First Steps',     desc:'Complete your first habit', pts:10,   icon:'🌱'},
+  {title:'Early Bird',      desc:'Complete 5 habits',         pts:50,   icon:'🐦'},
+  {title:'Week Warrior',    desc:'Reach 100 points',          pts:100,  icon:'⚔️'},
+  {title:'Dedicated',       desc:'Maintain a 7-day streak',   pts:150,  icon:'🎯'},
+  {title:'Streak Master',   desc:'Reach 250 points',          pts:250,  icon:'🔥'},
+  {title:'Consistency King',desc:'Reach 500 points',          pts:500,  icon:'👑'},
+  {title:'Champion',        desc:'Reach 750 points',          pts:750,  icon:'🥇'},
+  {title:'Legend',          desc:'Reach 1000 points',         pts:1000, icon:'💎'},
+  {title:'Unstoppable',     desc:'Reach 1500 points',         pts:1500, icon:'⚡'},
+  {title:'God Mode',        desc:'Reach 2000 points',         pts:2000, icon:'🌟'},
+];
+
+// ════════════════ UTILS ════════════════
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDateLong(d) {
+  return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+function daysAgo(n) {
+  const d = new Date(); d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0,10);
+}
+
+// ════════════════ CORE LOGIC ════════════════
+function addHabit(name, desc, category, priority) {
+  habits.push({id:nextId++,name,desc,category,priority:+priority,
+    streak:0,longestStreak:0,totalCompletions:0,completionDates:[],
+    createdDate:today(),archived:false});
+  addNotif(`✨ New habit added: ${name}`);
+  saveHabits();
+  renderAll();
+}
+
+function completeHabit(id) {
+  const h = habits.find(x=>x.id===id);
+  if (!h || h.archived) return;
+  const t = today();
+  if (h.completionDates.includes(t)) { undoCompletion(id); return; }
+  h.completionDates.push(t);
+  h.streak++; h.totalCompletions++;
+  if (h.streak > h.longestStreak) h.longestStreak = h.streak;
+  const pts = 10 * h.priority;
+  addPoints(pts);
+  user.categoryStats[h.category] = (user.categoryStats[h.category]||0) + 1;
+  undoStack.push({id, date:t});
+  logActivity(id, h.name, h.category, 'completed', pts, h.streak);
+  saveHabits();
+  addNotif(`✅ Completed "${h.name}" · +${pts} pts · 🔥 ${h.streak}-day streak`);
+  if (h.streak % 7 === 0) addNotif(`🎉 MILESTONE: ${h.streak}-day streak on "${h.name}"!`);
+  checkRewards();
+  toast(`✅ ${h.name} · +${pts} XP`);
+  renderAll();
+}
+
+function undoCompletion(id) {
+  const h = habits.find(x=>x.id===id);
+  if (!h) return;
+  const t = today();
+  const idx = h.completionDates.indexOf(t);
+  if (idx===-1) return;
+  h.completionDates.splice(idx,1);
+  h.streak = Math.max(0, h.streak-1);
+  h.totalCompletions = Math.max(0, h.totalCompletions-1);
+  const pts = 10*h.priority;
+  addPoints(-pts);
+  logActivity(h.id, h.name, h.category, 'undone', -pts, h.streak);
+  saveHabits();
+  addNotif(`↩️ Undone: "${h.name}"`);
+  toast(`↩️ Undone: ${h.name}`);
+  renderAll();
+}
+
+function completeAll() {
+  const t = today();
+  let count=0, totalPts=0;
+  habits.filter(h=>!h.archived && !h.completionDates.includes(t)).forEach(h=>{
+    h.completionDates.push(t); h.streak++; h.totalCompletions++;
+    if (h.streak > h.longestStreak) h.longestStreak = h.streak;
+    const pts = 10*h.priority;
+    addPoints(pts); totalPts+=pts;
+    user.categoryStats[h.category] = (user.categoryStats[h.category]||0)+1;
+    undoStack.push({id:h.id,date:t});
+    logActivity(h.id, h.name, h.category, 'completed', pts, h.streak);
+    count++;
+  });
+  if (count>0) { checkRewards(); saveAll(); addNotif(`🎊 Completed all ${count} habits! +${totalPts} XP`); toast(`🎊 All ${count} done! +${totalPts} XP`); }
+  else toast('All habits already done today! 🎉');
+  renderAll();
+}
+
+function deleteHabit(id) {
+  const idx = habits.findIndex(x=>x.id===id);
+  if (idx===-1) return;
+  deletedStack.push(habits[idx]);
+  addNotif(`🗑️ Deleted "${habits[idx].name}" (recoverable)`);
+  toast(`🗑️ Deleted "${habits[idx].name}"`);
+  habits.splice(idx,1);
+  saveHabits();
+  renderAll();
+}
+
+function archiveHabit(id) {
+  const h = habits.find(x=>x.id===id);
+  if (!h) return;
+  h.archived = true;
+  addNotif(`📦 Archived "${h.name}"`);
+  toast(`📦 Archived`);
+  saveHabits();
+  renderAll();
+}
+
+function unarchiveHabit(id) {
+  const h = habits.find(x=>x.id===id);
+  if (!h) return;
+  h.archived = false;
+  addNotif(`♻️ Restored "${h.name}"`);
+  toast(`♻️ Restored "${h.name}"`);
+  saveHabits();
+  renderAll();
+}
+
+function recoverLast() {
+  if (!deletedStack.length) { toast('Nothing to recover'); return; }
+  const h = deletedStack.pop();
+  habits.push(h);
+  addNotif(`♻️ Recovered "${h.name}"`);
+  toast(`♻️ Recovered "${h.name}"`);
+  saveHabits();
+  renderAll();
+}
+
+function addPoints(pts) {
+  user.points = Math.max(0, user.points + pts);
+  if (pts>0) { user.totalXP += pts; user.level = 1 + Math.floor(user.totalXP/100); }
+}
+
+function checkRewards() {
+  REWARDS.forEach(r=>{
+    if (!user.earnedRewards.includes(r.title) && user.points >= r.pts) {
+      user.earnedRewards.push(r.title);
+      addNotif(`🏅 NEW BADGE UNLOCKED: ${r.icon} ${r.title}!`);
+      toast(`🏅 Badge: ${r.title}!`, 4000);
+    }
+  });
+}
+
+// ════════════════ NOTIFICATIONS ════════════════
+function addNotif(msg) {
+  notifications.unshift({msg, ts: Date.now()});
+  if (notifications.length > 25) notifications.pop();
+  const b = document.getElementById('notif-badge');
+  b.textContent = notifications.length; b.style.display = 'inline';
+}
+function clearNotifs() {
+  notifications=[];
+  document.getElementById('notif-badge').style.display='none';
+  renderNotificationsPage();
+}
+
+// ════════════════ TOAST ════════════════
+function toast(msg, dur=2600) {
+  const el = document.createElement('div');
+  el.className='toast'; el.textContent=msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(), dur);
+}
+
+// ════════════════ NAVIGATION ════════════════
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page)?.classList.add('active');
+  document.querySelector(`[data-page="${page}"]`)?.classList.add('active');
+  renderPage(page);
+}
+
+function renderAll() {
+  updateSidebar();
+  const ap = document.querySelector('.page.active')?.id?.replace('page-','');
+  if (ap) renderPage(ap);
+}
+
+function renderPage(page) {
+  ({
+    today:      renderTodayPage,
+    habits:     renderHabitsPage,
+    calendar:   renderCalendarPage,
+    dashboard:  renderDashboardPage,
+    achievements: renderAchievementsPage,
+    categories: renderCategoriesPage,
+    notifications: renderNotificationsPage,
+    archived:   renderArchivedPage,
+  }[page] || (()=>{}))();
+}
+
+// ════════════════ SIDEBAR ════════════════
+function updateSidebar() {
+  document.getElementById('sb-name').textContent = user.name;
+  document.getElementById('sb-meta').textContent = `Lv.${user.level} · ${user.points} pts`;
+  document.getElementById('xp-fill').style.width = (user.totalXP % 100) + '%';
+}
+
+// ════════════════ TODAY ════════════════
+function renderTodayPage() {
+  const t = today();
+  const hr = new Date().getHours();
+  const g = hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+  document.getElementById('today-greeting').textContent = `${g}, ${user.name} ⚡`;
+  document.getElementById('today-date').textContent = fmtDateLong(t);
+
+  const active = habits.filter(h=>!h.archived);
+  const done = active.filter(h=>h.completionDates.includes(t));
+  const totalStreak = active.reduce((s,h)=>s+h.streak,0);
+  const rate = active.length ? Math.round(done.length/active.length*100) : 0;
+
+  document.getElementById('today-stats').innerHTML = `
+    <div class="card-sm"><div class="stat-val" style="color:#c084fc">${done.length}/${active.length}</div><div class="stat-label">Done Today</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--gold)">${user.points}</div><div class="stat-label">Points</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--green)">${totalStreak}</div><div class="stat-label">Total Streak</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--blue)">${rate}%</div><div class="stat-label">Completion Rate</div></div>`;
+
+  document.getElementById('today-prog').textContent = `${done.length} of ${active.length} completed`;
+
+  const sorted = [...active].sort((a,b)=>b.priority-a.priority || b.streak-a.streak);
+  document.getElementById('today-list').innerHTML = sorted.length
+    ? sorted.map(h=>habitRowHTML(h, t, true)).join('')
+    : '<div class="empty-state">No habits yet — click "+ Add Habit" to get started!</div>';
+}
+
+// ════════════════ HABIT ROW HTML ════════════════
+function habitRowHTML(h, t, showActions=true) {
+  const isDone = h.completionDates.includes(t);
+  const prioColors = ['','var(--muted)','var(--blue)','var(--red)'];
+  const prioLabel = ['','Low','Med','High'][h.priority];
+  const actionBtns = showActions ? `
+    <div class="habit-actions">
+      <button class="btn-icon btn-arch" onclick="archiveHabit(${h.id})" title="Archive">📦</button>
+      <button class="btn-icon btn-del" onclick="deleteHabit(${h.id})" title="Delete">🗑</button>
+    </div>` : '';
+  return `<div class="habit-row ${isDone?'done':''}">
+    <div class="habit-check ${isDone?'checked':''}" onclick="completeHabit(${h.id})">${isDone?'✓':''}</div>
+    <div class="prio-dot prio-${h.priority}"></div>
+    <div class="habit-info">
+      <div class="habit-name" style="${isDone?'text-decoration:line-through;opacity:.55':''}">${h.name}</div>
+      <div class="habit-meta">${h.category} · <span style="color:${prioColors[h.priority]}">${prioLabel} priority</span> · ${h.desc}</div>
+    </div>
+    ${h.streak>0?`<div class="streak-pill">🔥 ${h.streak}</div>`:''}
+    ${actionBtns}
+  </div>`;
+}
+
+// ════════════════ ALL HABITS ════════════════
+function renderHabitsPage() {
+  const active = habits.filter(h=>!h.archived);
+  const t = today();
+  const sorted = [...active].sort((a,b)=>b.streak-a.streak || b.priority-a.priority);
+  document.getElementById('habits-list').innerHTML = sorted.length
+    ? sorted.map(h => {
+        const isDone = h.completionDates.includes(t);
+        return `<div class="habit-row ${isDone?'done':''}">
+          <div class="habit-check ${isDone?'checked':''}" onclick="completeHabit(${h.id})">${isDone?'✓':''}</div>
+          <div class="prio-dot prio-${h.priority}"></div>
+          <div class="habit-info">
+            <div class="habit-name">${h.name}</div>
+            <div class="habit-meta">${h.category} · Total: ${h.totalCompletions} · Best streak: ${h.longestStreak}d</div>
+          </div>
+          <div style="display:flex;gap:.4rem;align-items:center;flex-shrink:0;flex-wrap:wrap">
+            ${h.streak>0?`<div class="streak-pill">🔥 ${h.streak}</div>`:''}
+            <span class="badge badge-${['','muted','blue','red'][h.priority]}">${['','Low','Med','High'][h.priority]}</span>
+            <span class="badge ${isDone?'badge-green':'badge-purple'}">${isDone?'Done':'Pending'}</span>
+          </div>
+          <div class="habit-actions">
+            <button class="btn-icon btn-arch" onclick="archiveHabit(${h.id})" title="Archive">📦</button>
+            <button class="btn-icon btn-del" onclick="deleteHabit(${h.id})" title="Delete">🗑</button>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty-state">No active habits. Add one to start your journey!</div>';
+}
+
+// ════════════════ CALENDAR ════════════════
+function renderCalendarPage() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-label').textContent = `${months[calMonth]} ${calYear}`;
+  const firstDow = new Date(calYear, calMonth, 1).getDay();
+  const dim = new Date(calYear, calMonth+1, 0).getDate();
+  const offset = (firstDow + 6) % 7;
+  const active = habits.filter(h=>!h.archived);
+  const t = today();
+
+  let html = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-day-hdr">${d}</div>`).join('');
+  for (let i=0;i<offset;i++) html += '<div class="cal-day empty"></div>';
+
+  for (let d=1;d<=dim;d++) {
+    const ds = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isT = ds===t, isFut = ds>t;
+    let cls='cal-day', dotCls='';
+    if (isFut) cls+=' future';
+    else if (active.length) {
+      const done = active.filter(h=>h.completionDates.includes(ds)).length;
+      if (done===active.length) {cls+=' full';dotCls='dot-full';}
+      else if (done>0) {cls+=' partial';dotCls='dot-partial';}
+      else {cls+=' none-done';dotCls='dot-none';}
+    }
+    if (isT) cls+=' today';
+    html+=`<div class="${cls}" onclick="${isFut?'':('showCalDay("'+ds+'")')}">
+      <div class="cal-day-num">${d}</div>
+      ${dotCls&&!isFut?`<div class="cal-dot ${dotCls}"></div>`:''}
+    </div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+  document.getElementById('cal-detail').style.display='none';
+}
+
+function calNav(dir) {
+  calMonth+=dir;
+  if (calMonth>11){calMonth=0;calYear++;}
+  else if (calMonth<0){calMonth=11;calYear--;}
+  renderCalendarPage();
+}
+
+function showCalDay(ds) {
+  const active = habits.filter(h=>!h.archived);
+  const isFut = ds > today();
+  document.getElementById('cal-detail-title').textContent = fmtDateLong(ds);
+  const done = active.filter(h=>h.completionDates.includes(ds));
+  const missed = active.filter(h=>!h.completionDates.includes(ds));
+  let html = '';
+  if (isFut) {
+    html = active.map(h=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.875rem"><span class="badge badge-muted">Scheduled</span> ${h.name}</div>`).join('');
+  } else {
+    done.forEach(h=>{html+=`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.875rem"><span class="badge badge-green">✓ Done</span> ${h.name} <span style="color:var(--gold);font-size:.72rem;font-weight:600">+${10*h.priority} pts</span></div>`;});
+    missed.forEach(h=>{html+=`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;font-size:.875rem"><span class="badge badge-red">✗ Missed</span> ${h.name}</div>`;});
+  }
+  document.getElementById('cal-detail-list').innerHTML = html || '<div style="color:var(--muted);font-size:.85rem">No habits tracked.</div>';
+  document.getElementById('cal-detail').style.display='block';
+}
+
+// ════════════════ DASHBOARD ════════════════
+function renderDashboardPage() {
+  const active = habits.filter(h=>!h.archived);
+  const t = today();
+  const totalComp = habits.reduce((s,h)=>s+h.totalCompletions,0);
+  const maxStreak = active.reduce((m,h)=>Math.max(m,h.streak),0);
+  const badges = user.earnedRewards.length;
+
+  document.getElementById('dash-stats').innerHTML = `
+    <div class="card-sm"><div class="stat-val" style="color:#c084fc">Lv.${user.level}</div><div class="stat-label">Level</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--gold)">${user.points}</div><div class="stat-label">Points</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--green)">${totalComp}</div><div class="stat-label">Total Done</div></div>
+    <div class="card-sm"><div class="stat-val" style="color:var(--red)">${maxStreak}🔥</div><div class="stat-label">Best Streak</div></div>`;
+
+  // 7-day bars
+  const days = [];
+  for (let i=6;i>=0;i--) {
+    const ds=daysAgo(i);
+    const cnt = habits.filter(h=>h.completionDates.includes(ds)).length;
+    const label = new Date(ds+'T00:00:00').toLocaleDateString('en',{weekday:'short'});
+    days.push({label,cnt});
+  }
+  const mx = Math.max(1,...days.map(x=>x.cnt));
+  document.getElementById('week-bars').innerHTML = days.map(x=>`
+    <div class="week-bar-wrap">
+      <div class="week-count">${x.cnt}</div>
+      <div class="week-bar ${x.cnt===0?'zero-bar':''}" style="height:${Math.round(x.cnt/mx*88)+6}px"></div>
+      <div class="week-label">${x.label}</div>
+    </div>`).join('');
+
+  // cat bars
+  const cats = user.categoryStats;
+  const ctotal = Object.values(cats).reduce((s,v)=>s+v,0)||1;
+  document.getElementById('cat-bars').innerHTML = Object.keys(cats).length
+    ? Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+        <div class="cat-row">
+          <div class="cat-name" title="${k}">${k}</div>
+          <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${Math.round(v/ctotal*100)}%"></div></div>
+          <div class="cat-pct">${Math.round(v/ctotal*100)}%</div>
+        </div>`).join('')
+    : '<div style="color:var(--muted);font-size:.82rem">Complete habits to see stats</div>';
+
+  // recommendations
+  const recs = active.filter(h=>!h.completionDates.includes(t))
+    .sort((a,b)=>(b.priority*10+(10-Math.min(10,b.streak)))-(a.priority*10+(10-Math.min(10,a.streak)))).slice(0,5);
+  document.getElementById('recs').innerHTML = recs.length
+    ? recs.map((h,i)=>`<div style="display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid var(--border)">
+        <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;color:var(--muted);width:22px">${i+1}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.9rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div>
+          <div style="font-size:.72rem;color:var(--muted)">${h.category}</div>
+        </div>
+        <span class="badge badge-${['','muted','blue','red'][h.priority]}">${['','Low','Med','High'][h.priority]}</span>
+      </div>`).join('')
+    : '<div style="color:var(--green);font-weight:500;font-size:.9rem">🎉 All habits done for today!</div>';
+}
+
+// ════════════════ ACHIEVEMENTS ════════════════
+function renderAchievementsPage() {
+  const u = user.earnedRewards.length, tot = REWARDS.length;
+  document.getElementById('ach-prog').innerHTML = `
+    <div style="display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.8rem">
+      <span style="color:var(--text2)">Progress</span>
+      <span style="font-weight:600;color:var(--gold)">${u}/${tot} unlocked</span>
+    </div>
+    <div class="progress-outer">
+      <div class="progress-inner" style="width:${Math.round(u/tot*100)}%;background:linear-gradient(90deg,var(--gold),var(--accent2))"></div>
+    </div>`;
+  document.getElementById('ach-grid').innerHTML = REWARDS.map(r=>{
+    const ok = user.earnedRewards.includes(r.title);
+    return `<div class="ach-card ${ok?'unlocked':''}">
+      <span class="ach-icon">${ok?r.icon:'🔒'}</span>
+      <div class="ach-title" style="${!ok?'color:var(--muted)':''}">${r.title}</div>
+      <div class="ach-desc">${r.desc}</div>
+      <div class="ach-pts" style="color:${ok?'var(--green)':'var(--gold)'}">${ok?'✅ Unlocked':'Need '+r.pts+' pts'}</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════ CATEGORIES ════════════════
+let activeCat = '';
+function renderCategoriesPage() {
+  const active = habits.filter(h=>!h.archived);
+  const cats = [...new Set(active.map(h=>h.category))].sort();
+  if (!cats.includes(activeCat)) activeCat = cats[0]||'';
+  document.getElementById('cat-filter').innerHTML = cats.map(c=>
+    `<button class="btn btn-sm ${c===activeCat?'btn-primary':'btn-secondary'}" onclick="setCat('${c}')">${c}</button>`).join('');
+  const t = today();
+  const filtered = active.filter(h=>h.category===activeCat);
+  document.getElementById('cat-habit-list').innerHTML = filtered.length
+    ? filtered.map(h=>habitRowHTML(h,t,false)).join('')
+    : '<div class="empty-state">No habits in this category.</div>';
+}
+function setCat(c) { activeCat=c; renderCategoriesPage(); }
+
+// ════════════════ NOTIFICATIONS ════════════════
+function renderNotificationsPage() {
+  document.getElementById('notif-badge').style.display='none';
+  document.getElementById('notif-list').innerHTML = notifications.length
+    ? notifications.map(n=>`<div class="notif-item">${n.msg}</div>`).join('')
+    : '<div class="empty-state">No notifications yet.</div>';
+}
+
+// ════════════════ ARCHIVED ════════════════
+function renderArchivedPage() {
+  const arc = habits.filter(h=>h.archived);
+  document.getElementById('archived-list').innerHTML = arc.length
+    ? arc.map(h=>`<div class="habit-row">
+        <div class="habit-info">
+          <div class="habit-name" style="opacity:.6">${h.name}</div>
+          <div class="habit-meta">${h.category} · ${h.totalCompletions} completions · Best streak: ${h.longestStreak}d</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="unarchiveHabit(${h.id})">♻ Restore</button>
+      </div>`).join('')
+    : '<div class="empty-state">No archived habits.</div>';
+}
+
+// ════════════════ MODAL ════════════════
+function openModal() { document.getElementById('modal').classList.add('open'); setTimeout(()=>document.getElementById('inp-name').focus(),50); }
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  ['inp-name','inp-desc','inp-cat'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('inp-prio').value='2';
+}
+function submitHabit() {
+  const name = document.getElementById('inp-name').value.trim();
+  if (!name) { document.getElementById('inp-name').style.borderColor='var(--red)'; setTimeout(()=>document.getElementById('inp-name').style.borderColor='',1500); return; }
+  addHabit(name, document.getElementById('inp-desc').value.trim()||'No description',
+    document.getElementById('inp-cat').value.trim()||'General',
+    parseInt(document.getElementById('inp-prio').value));
+  toast(`✅ "${name}" added!`);
+  closeModal();
+}
+document.getElementById('modal').addEventListener('click', e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); if(e.key==='Enter'&&document.getElementById('modal').classList.contains('open')) submitHabit(); });
+
+// ════════════════ BOOT ════════════════
+async function startApp(name) {
+  document.getElementById('welcome-overlay').style.display = 'none';
+  user.name = (name || 'Hero').trim() || 'Hero';
+  addHabit('Morning Workout', '30 minutes of exercise', 'Health', 3);
+  addHabit('Read 30 Minutes', 'Educational or non-fiction', 'Learning', 2);
+  addHabit('Meditation', '10 minutes mindfulness', 'Wellness', 3);
+  addHabit('Code Practice', 'Solve DSA problems', 'Learning', 2);
+  addHabit('Drink Water', '8 glasses of water', 'Health', 1);
+  notifications = [];
+  addNotif(`👋 Welcome to HabitQuest, ${user.name}! 5 demo habits loaded.`);
+  await saveAll();
+  updateSidebar();
+  renderTodayPage();
+}
+
+(async function init() {
+  const hasData = await loadFromServer();
+  if (hasData) {
+    document.getElementById('welcome-overlay').style.display = 'none';
+    notifications = [];
+    addNotif(`👋 Welcome back, ${user.name}! Your progress has been restored.`);
+    updateSidebar();
+    renderTodayPage();
+  } else {
+    document.getElementById('welcome-overlay').style.display = 'flex';
+    setTimeout(() => document.getElementById('welcome-name-input').focus(), 100);
+  }
+})();
+
+document.getElementById('welcome-start-btn').addEventListener('click', () => {
+  const name = document.getElementById('welcome-name-input').value.trim();
+  if (!name) {
+    document.getElementById('welcome-name-input').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('welcome-name-input').style.borderColor = '', 1500);
+    return;
+  }
+  startApp(name);
+});
+document.getElementById('welcome-name-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('welcome-start-btn').click();
+});
+</script>
+</body>
+</html>

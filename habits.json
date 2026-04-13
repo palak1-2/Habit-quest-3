@@ -1,0 +1,135 @@
+{
+  "meta": {
+    "savedAt": "2026-03-25T08:40:08.587Z",
+    "version": 1
+  },
+  "user": {
+    "name": "Manav",
+    "points": 560,
+    "level": 3,
+    "totalXP": 560,
+    "earnedRewards": [
+      "First Steps",
+      "Early Bird",
+      "Week Warrior",
+      "Consistency King"
+    ],
+    "categoryStats": {
+      "Health": 8,
+      "Wellness": 4,
+      "Learning": 8,
+      "Productivity": 4
+    }
+  },
+  "nextId": 7,
+  "habits": [
+    {
+      "id": 1,
+      "name": "Morning Workout",
+      "desc": "30 minutes of exercise",
+      "category": "Health",
+      "priority": 3,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    },
+    {
+      "id": 2,
+      "name": "Read 30 Minutes",
+      "desc": "Educational or non-fiction",
+      "category": "Learning",
+      "priority": 2,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    },
+    {
+      "id": 3,
+      "name": "Meditation",
+      "desc": "10 minutes mindfulness",
+      "category": "Wellness",
+      "priority": 3,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    },
+    {
+      "id": 4,
+      "name": "Code Practice",
+      "desc": "Solve DSA problems",
+      "category": "Learning",
+      "priority": 2,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    },
+    {
+      "id": 5,
+      "name": "Drink Water",
+      "desc": "8 glasses of water",
+      "category": "Health",
+      "priority": 1,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    },
+    {
+      "id": 6,
+      "name": "Coding",
+      "desc": "Daily codeforces 7 Question",
+      "category": "Productivity",
+      "priority": 3,
+      "streak": 4,
+      "longestStreak": 4,
+      "totalCompletions": 4,
+      "completionDates": [
+        "2026-03-25",
+        "2026-03-24",
+        "2026-03-23",
+        "2026-03-22"
+      ],
+      "createdDate": "2026-03-25",
+      "archived": false
+    }
+  ]
+}
